@@ -51,7 +51,7 @@ func (d *Data) GetRunTime() time.Time {
 func (d *Data) UpdateLastRunTime() {
 	d.Lock()
 	d.LastRunTime = time.Now()
-	d.LastRunTimeUnix = 0
+	d.LastRunTimeUnix = time.Now().Unix()
 	d.Unlock()
 	return
 }
