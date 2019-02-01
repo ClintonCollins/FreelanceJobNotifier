@@ -1,4 +1,4 @@
-#Freelance Job Notifier
+# Freelance Job Notifier
 
 ### What does it do?
 
