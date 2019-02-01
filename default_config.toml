@@ -1,0 +1,14 @@
+# Enter your search queries here. It's an array/slice of job search queries.
+SearchQueries = ['test query 1', 'test_query2', 'python']
+
+# Enable freelancer.com support true/false
+FreelancerEnabled = true
+
+# Print out jobs when found to your console/standard out
+StandardOutNotification = true
+
+# Enable Discord notifications. Sends to a webhook. true/false
+DiscordNotifications = false
+
+# If Discord is enabled this needs to be your full webhook URL
+DiscordHook = ""

@@ -1,0 +1,14 @@
+build:
+  stage: build
+  image: golang:latest
+  script:
+    - go get
+    - env GOOS=linux GOARCH=amd64 go build -i -o dist/linux64/freelance_job_notifier
+    - env GOOS=windows GOARCH=amd64 go build -i -o dist/windows64/freelance_job_notifier.exe
+    - env GOOS=darwin GOARCH=amd64 go build -i -o dist/darwin64/freelance_job_notifier
+    - mkdir freelance_job_notifier
+    - cp -r dist freelance_job_notifier/
+    - cp default_config.toml freelance_job_notifier/config.toml
+  artifacts:
+    paths:
+      - freelance_job_notifier
