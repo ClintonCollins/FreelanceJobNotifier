@@ -1,4 +1,4 @@
-# Enter your search queries here. It's an array/slice of job search queries.
+# Enter your search queries here. It's an array/slice of job search queries. To not use any search terms just use ['all']
 SearchQueries = ['test query 1', 'test_query2', 'python']
 
 # Enable freelancer.com support true/false
@@ -9,6 +9,20 @@ StandardOutNotification = true
 
 # Enable Discord notifications. Sends to a webhook. true/false
 DiscordNotifications = false
+
+# This sets the countries the project is from. You can either leave it empty [] or set countries.
+AllowedCountries = ['us', 'ca']
+
+# Project poster language. You can set this or leave it empty [].
+AllowedLanguages = ['en']
+
+# If the project is posted as hourly this is minimum rate you would want to be paid. This number has to be in their min to max budget.
+# Leave 0.0 to disable.
+MinimumHourly = 0.0
+
+# If the project is posted as fixed this is minimum rate you would want to be paid. This number has to be in their min to max budget.
+# Leave 0.0 to disable.
+MinimumFixed = 0.0
 
 # If Discord is enabled this needs to be your full webhook URL
 DiscordHook = ""

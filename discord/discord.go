@@ -1,7 +1,6 @@
 package discord
 
 import (
-	"FreelanceJobNotifier/models"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -10,6 +9,8 @@ import (
 	"net/url"
 	"strings"
 	"time"
+
+	"FreelanceJobNotifier/models"
 )
 
 type Message struct {
@@ -90,8 +91,15 @@ func executeDiscordWebhook(data *models.Data, fields []Field, q string) {
 	}
 	params := url.Values{}
 	params.Add("payload_json", string(discordJSON))
-	_, err = http.PostForm(data.Configuration.DiscordHook, params)
+	httpClient := http.Client{
+		Timeout: 5 * time.Second,
+	}
+	resp, err := httpClient.PostForm(data.Configuration.DiscordHook, params)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+	}
+	err = resp.Body.Close()
+	if err != nil {
+		fmt.Println(err)
 	}
 }

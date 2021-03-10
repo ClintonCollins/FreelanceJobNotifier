@@ -4,13 +4,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
+
 	"FreelanceJobNotifier/models"
 )
 
-type FreelancerProjectJSON struct {
+type ProjectJSON struct {
 	Status string `json:"status"`
 	Result struct {
 		TotalCount   int         `json:"total_count"`
@@ -133,7 +136,7 @@ type FreelancerProjectJSON struct {
 	RequestID string `json:"request_id"`
 }
 
-type FreelancerErrorJSON struct {
+type ErrorJSON struct {
 	Status    string `json:"status"`
 	Message   string `json:"message"`
 	ErrorCode string `json:"error_code"`
@@ -144,24 +147,60 @@ func QueryFreelancer(data *models.Data) {
 	throttle := time.Tick(5 * time.Second)
 	for _, query := range data.Configuration.SearchQueries {
 		httpClient := http.Client{
-			Timeout: 5 * time.Second,
+			Timeout: 15 * time.Second,
 		}
 		getParams := url.Values{}
-		getParams.Add("query", query)
+		if strings.ToLower(query) != "all" {
+			getParams.Add("query", query)
+		}
 		getParams.Add("from_time", fmt.Sprintf("%d", data.GetRunTimeUnix()))
+		if len(data.Configuration.AllowedCountries) > 0 {
+			for _, cur := range data.Configuration.AllowedCountries {
+				getParams.Add("countries[]", cur)
+			}
+		}
+		if len(data.Configuration.AllowedLanguages) > 0 {
+			for _, lang := range data.Configuration.AllowedLanguages {
+				getParams.Add("languages[]", lang)
+			}
+		}
 		formattedLink := fmt.Sprintf("https://www.freelancer.com/api/projects/0.1/projects/active/?%s", getParams.Encode())
 		resp, err := httpClient.Get(formattedLink)
-		projectJSON := FreelancerProjectJSON{}
-		bodyBytes, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
+			continue
+		}
+		projectJSON := ProjectJSON{}
+		bodyBytes, err := ioutil.ReadAll(resp.Body)
+		closeErr := resp.Body.Close()
+		if closeErr != nil {
+			fmt.Println(closeErr)
+		}
+		if err != nil {
+			log.Println(err)
+			continue
 		}
 		err = json.Unmarshal(bodyBytes, &projectJSON)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
+			continue
 		}
 		var jobs []*models.Job
 		for _, r := range projectJSON.Result.Projects {
+			if data.Configuration.MinimumFixed != 0 {
+				if r.Type == "fixed" {
+					if r.Budget.Maximum < data.Configuration.MinimumFixed {
+						continue
+					}
+				}
+			}
+			if data.Configuration.MinimumHourly != 0 {
+				if r.Type == "hourly" {
+					if r.Budget.Maximum < data.Configuration.MinimumHourly {
+						continue
+					}
+				}
+			}
 			timeSubmitted := time.Unix(r.TimeSubmitted, 0)
 			newFreelancerJob := models.Job{}
 			newFreelancerJob.URL = fmt.Sprintf("https://freelancer.com/projects/%s", r.SeoURL)

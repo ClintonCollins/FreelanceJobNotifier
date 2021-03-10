@@ -10,6 +10,10 @@ type Configuration struct {
 	FreelancerEnabled       bool
 	StandardOutNotification bool
 	DiscordNotifications    bool
+	AllowedCountries        []string
+	AllowedLanguages        []string
+	MinimumHourly           float64
+	MinimumFixed            float64
 	DiscordHook             string
 }
 
