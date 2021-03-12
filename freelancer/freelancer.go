@@ -144,11 +144,11 @@ type ErrorJSON struct {
 }
 
 func QueryFreelancer(data *models.Data) {
-	throttle := time.Tick(5 * time.Second)
+	httpClient := http.Client{
+		Timeout: 15 * time.Second,
+	}
+	throttle := time.Tick(10 * time.Second)
 	for _, query := range data.Configuration.SearchQueries {
-		httpClient := http.Client{
-			Timeout: 15 * time.Second,
-		}
 		getParams := url.Values{}
 		if strings.ToLower(query) != "all" {
 			getParams.Add("query", query)
@@ -182,7 +182,7 @@ func QueryFreelancer(data *models.Data) {
 		}
 		err = json.Unmarshal(bodyBytes, &projectJSON)
 		if err != nil {
-			log.Println(err)
+			log.Printf("Unable to unmarshal JSON. Got this response text instead:\n%v\n", string(bodyBytes))
 			continue
 		}
 		var jobs []*models.Job
